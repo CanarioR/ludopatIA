@@ -987,10 +987,10 @@ body:not(.crt-enabled) .scanlines {
     margin: 0;
     border-left: 0;
     border-right: 0;
-    padding-left: 0.75rem;
-    padding-right: 0.75rem;
-    padding-top: 1.05rem;
-    padding-bottom: 1.12rem;
+    padding-left: 0.62rem;
+    padding-right: 0.62rem;
+    padding-top: 0.72rem;
+    padding-bottom: 0.78rem;
   }
 
   .menu-screen {
@@ -1013,7 +1013,8 @@ body:not(.crt-enabled) .scanlines {
   }
 
   .pixel-btn {
-    min-height: 52px;
+    min-height: 44px;
+    padding: 0.62rem 0.62rem;
   }
 
   .options-card {
@@ -1031,8 +1032,8 @@ body:not(.crt-enabled) .scanlines {
   }
 
   .game-bot-sprite {
-    width: clamp(150px, 48vw, 230px);
-    height: clamp(150px, 48vw, 230px);
+    width: clamp(118px, 30vw, 160px);
+    height: auto;
   }
 
   .outcome-overlay-sprite {
@@ -1042,40 +1043,71 @@ body:not(.crt-enabled) .scanlines {
 
   .game-bot-card {
     grid-template-columns: 1fr;
-    padding: 0.55rem;
+    padding: 0.42rem;
+    gap: 0.45rem;
   }
 
   .hud {
     justify-content: center;
-    gap: 0.52rem;
+    gap: 0.42rem;
   }
 
   .hud p {
-    width: 100%;
+    width: auto;
     text-align: center;
+    padding: 0.28rem 0.45rem;
+    font-size: clamp(0.9rem, 2.9vw, 1.04rem);
   }
 
   .number-row {
-    grid-template-columns: 1fr;
-    gap: 0.55rem;
+    grid-template-columns: minmax(90px, 1fr) auto minmax(90px, 1fr);
+    gap: 0.35rem;
   }
 
   .number-separator {
-    display: none;
+    display: block;
+    font-size: clamp(1rem, 3.2vw, 1.35rem);
   }
 
-  .guess-buttons,
+  .guess-buttons {
+    grid-template-columns: repeat(2, minmax(120px, 1fr));
+    gap: 0.5rem;
+  }
+
   .game-footer-actions {
     grid-template-columns: 1fr;
   }
 
   .bet-panel input {
     width: 100%;
-    min-height: 46px;
+    min-height: 40px;
+    padding: 0.32rem 0.42rem;
   }
 
   .action-btn {
-    min-height: 58px;
+    min-height: 46px;
+    font-size: clamp(0.86rem, 2.7vw, 1.02rem);
+  }
+
+  .game-card,
+  .bet-panel {
+    padding: 0.58rem;
+  }
+
+  .terminal-card {
+    padding-top: 0.5rem;
+  }
+
+  .label {
+    font-size: clamp(0.9rem, 2.7vw, 1.02rem);
+  }
+
+  .current-number {
+    font-size: clamp(1.8rem, 10vw, 2.8rem);
+  }
+
+  .next-number {
+    font-size: clamp(1.6rem, 9vw, 2.4rem);
   }
 }
 
@@ -1093,31 +1125,50 @@ body:not(.crt-enabled) .scanlines {
   .menu-screen,
   .mode-select-screen,
   .game-screen {
-    padding-left: 0.56rem;
-    padding-right: 0.56rem;
-    padding-top: 0.72rem;
+    padding-left: 0.46rem;
+    padding-right: 0.46rem;
+    padding-top: 0.56rem;
   }
 
   .game-bot-sprite {
-    width: clamp(132px, 43vw, 190px);
+    width: clamp(98px, 28vw, 132px);
     height: auto;
   }
 
   .game-card,
   .bet-panel {
-    padding: 0.7rem;
+    padding: 0.48rem;
   }
 
   .current-number {
-    font-size: clamp(2.05rem, 15vw, 3.1rem);
+    font-size: clamp(1.6rem, 11vw, 2.35rem);
   }
 
   .next-number {
-    font-size: clamp(1.78rem, 13vw, 2.7rem);
+    font-size: clamp(1.45rem, 10vw, 2.05rem);
   }
 
   .pixel-btn {
-    font-size: clamp(0.72rem, 3.8vw, 0.9rem);
+    font-size: clamp(0.64rem, 3.2vw, 0.8rem);
+    min-height: 40px;
+  }
+
+  .guess-buttons {
+    gap: 0.42rem;
+  }
+
+  .action-btn {
+    min-height: 42px;
+    font-size: clamp(0.78rem, 2.9vw, 0.94rem);
+  }
+
+  .hud p {
+    font-size: clamp(0.8rem, 3vw, 0.95rem);
+    padding: 0.24rem 0.36rem;
+  }
+
+  .number-separator {
+    font-size: 1rem;
   }
 
   .options-panel {

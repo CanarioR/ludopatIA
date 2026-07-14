@@ -1,4 +1,4 @@
-const buttons = document.querySelectorAll('.menu-buttons .pixel-btn');
+const buttons = document.querySelectorAll('.menu-screen .menu-buttons .pixel-btn[data-action]');
 const audioHint = document.querySelector('.audio-hint');
 const scanlines = document.querySelector('.scanlines');
 const menuScreen = document.querySelector('.menu-screen');
@@ -211,6 +211,16 @@ function makeSquareOsc(freq, start, duration, volume = 0.045) {
   osc.stop(start + duration + 0.02);
 }
 
+function primeSfxOutput() {
+  if (!audioCtx || !masterGain || audioCtx.state !== 'running') {
+    return;
+  }
+
+  // iOS Safari often needs an actual node start in a trusted gesture to unlock SFX.
+  const now = audioCtx.currentTime;
+  makeSquareOsc(660, now, 0.035, 0.0045);
+}
+
 function playBar() {
   if (!audioCtx || audioCtx.state !== 'running') {
     return;
@@ -302,7 +312,7 @@ function playLoseSfx() {
   });
 }
 
-async function startAudio() {
+async function startAudio(primeSfx = false) {
   if (!audioStarted) {
     audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     masterGain = audioCtx.createGain();
@@ -327,7 +337,11 @@ async function startAudio() {
   // Warm up iOS audio output on first user gesture so subsequent SFX are audible.
   if (!audioUnlockWarmupDone && audioCtx && audioCtx.state === 'running') {
     audioUnlockWarmupDone = true;
-    makeSquareOsc(880, audioCtx.currentTime, 0.03, 0.0018);
+    makeSquareOsc(880, audioCtx.currentTime, 0.03, 0.0032);
+  }
+
+  if (primeSfx) {
+    primeSfxOutput();
   }
 
   ensureBgMusic();
@@ -638,6 +652,14 @@ buttons.forEach((button) => {
 
 if (playBtn) {
   playBtn.disabled = false;
+
+  playBtn.addEventListener('pointerdown', () => {
+    void startAudio(true);
+  }, { passive: true });
+
+  playBtn.addEventListener('touchstart', () => {
+    void startAudio(true);
+  }, { passive: true });
 }
 
 if (optionsCrtToggle) {
