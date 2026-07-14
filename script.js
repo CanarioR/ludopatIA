@@ -745,16 +745,26 @@ if (backToMainMenuBtn) {
   });
 }
 
-betInput.addEventListener('input', () => {
-  const digitsOnly = betInput.value.replace(/\D/g, '');
+betInput.addEventListener('input', (event) => {
+  const input = event.currentTarget;
+  const originalValue = input.value;
 
-  // Allow empty value while editing; enforce validity only when submitting the guess.
-  if (digitsOnly === '') {
-    betInput.value = '';
+  if (originalValue === '') {
     return;
   }
 
-  betInput.value = digitsOnly.replace(/^0+(?=\d)/, '');
+  const cleanValue = originalValue
+    .replace(/[^0-9]/g, '')
+    .replace(/^0+(?=\d)/, '');
+
+  if (originalValue !== cleanValue) {
+    input.value = cleanValue;
+  }
+});
+betInput.addEventListener('focus', () => {
+  setTimeout(() => {
+    betInput.select();
+  }, 50);
 });
 
 window.addEventListener('pointerdown', () => {
