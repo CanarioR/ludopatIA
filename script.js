@@ -8,7 +8,6 @@ const outcomeOverlay = document.querySelector('#outcomeOverlay');
 const outcomeOverlaySprite = document.querySelector('#outcomeOverlaySprite');
 const optionsPanel = document.querySelector('#optionsPanel');
 const optionsBackdrop = document.querySelector('#optionsBackdrop');
-const optionsFullscreenBtn = document.querySelector('#optionsFullscreenBtn');
 const optionsCrtToggle = document.querySelector('#optionsCrtToggle');
 const optionsMusicToggle = document.querySelector('#optionsMusicToggle');
 const optionsResetCreditsBtn = document.querySelector('#optionsResetCreditsBtn');
@@ -51,6 +50,7 @@ let creditsPopTimer;
 let outcomeOverlayTimer;
 let deferredCreditsTimer;
 let creditsDisplayTimer;
+let audioUnlockWarmupDone = false;
 
 const MUSIC_TARGET_VOLUME = 0.35;
 const MUSIC_FADE_SECONDS = 0.8;
@@ -68,95 +68,6 @@ const gameState = {
 let previousCredits = gameState.credits;
 let displayedCredits = gameState.credits;
 let musicEnabled = true;
-let pseudoFullscreenActive = false;
-
-function getFullscreenElement() {
-  return document.fullscreenElement
-    || document.webkitFullscreenElement
-    || document.msFullscreenElement
-    || null;
-}
-
-function requestFullscreenCompat(element) {
-  if (!element) {
-    return Promise.reject(new Error('No target element for fullscreen.'));
-  }
-
-  if (element.requestFullscreen) {
-    return element.requestFullscreen();
-  }
-
-  if (element.webkitRequestFullscreen) {
-    return element.webkitRequestFullscreen();
-  }
-
-  if (element.msRequestFullscreen) {
-    return element.msRequestFullscreen();
-  }
-
-  return Promise.reject(new Error('Fullscreen API is not available.'));
-}
-
-function exitFullscreenCompat() {
-  if (document.exitFullscreen) {
-    return document.exitFullscreen();
-  }
-
-  if (document.webkitExitFullscreen) {
-    return document.webkitExitFullscreen();
-  }
-
-  if (document.msExitFullscreen) {
-    return document.msExitFullscreen();
-  }
-
-  return Promise.reject(new Error('Exit fullscreen API is not available.'));
-}
-
-function setPseudoFullscreen(enabled) {
-  pseudoFullscreenActive = enabled;
-  document.body.classList.toggle('pseudo-fullscreen', enabled);
-}
-
-function updateFullscreenButtonLabel() {
-  if (!optionsFullscreenBtn) {
-    return;
-  }
-
-  const active = Boolean(getFullscreenElement()) || pseudoFullscreenActive;
-  optionsFullscreenBtn.textContent = active ? 'Salir de pantalla completa' : 'Pantalla completa';
-}
-
-async function toggleFullscreenMode() {
-  const fullscreenElement = getFullscreenElement();
-
-  if (fullscreenElement) {
-    try {
-      await exitFullscreenCompat();
-    } catch {
-      setPseudoFullscreen(false);
-    }
-
-    updateFullscreenButtonLabel();
-    return;
-  }
-
-  if (pseudoFullscreenActive) {
-    setPseudoFullscreen(false);
-    updateFullscreenButtonLabel();
-    return;
-  }
-
-  try {
-    await requestFullscreenCompat(document.documentElement);
-    setPseudoFullscreen(false);
-  } catch {
-    // iOS Safari and some mobile browsers block fullscreen for regular pages.
-    setPseudoFullscreen(true);
-  }
-
-  updateFullscreenButtonLabel();
-}
 
 function openOptionsPanel() {
   if (!optionsPanel) {
@@ -391,7 +302,7 @@ function playLoseSfx() {
   });
 }
 
-function startAudio() {
+async function startAudio() {
   if (!audioStarted) {
     audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     masterGain = audioCtx.createGain();
@@ -403,6 +314,20 @@ function startAudio() {
     if (audioHint) {
       audioHint.textContent = 'Musica 8-bit activa';
     }
+  }
+
+  if (audioCtx && audioCtx.state !== 'running') {
+    try {
+      await audioCtx.resume();
+    } catch {
+      // iOS can reject resume sporadically; next gesture retries.
+    }
+  }
+
+  // Warm up iOS audio output on first user gesture so subsequent SFX are audible.
+  if (!audioUnlockWarmupDone && audioCtx && audioCtx.state === 'running') {
+    audioUnlockWarmupDone = true;
+    makeSquareOsc(880, audioCtx.currentTime, 0.03, 0.0018);
   }
 
   ensureBgMusic();
@@ -692,8 +617,8 @@ function backToMenu() {
   }
 }
 
-function handleButtonClick(action) {
-  startAudio();
+async function handleButtonClick(action) {
+  await startAudio();
 
   if (action === 'play') {
     showModeSelectScreen();
@@ -706,17 +631,13 @@ function handleButtonClick(action) {
 }
 
 buttons.forEach((button) => {
-  button.addEventListener('click', () => {
-    handleButtonClick(button.dataset.action);
+  button.addEventListener('click', async () => {
+    await handleButtonClick(button.dataset.action);
   });
 });
 
 if (playBtn) {
   playBtn.disabled = false;
-}
-
-if (optionsFullscreenBtn) {
-  optionsFullscreenBtn.addEventListener('click', toggleFullscreenMode);
 }
 
 if (optionsCrtToggle) {
@@ -768,34 +689,29 @@ window.addEventListener('keydown', (event) => {
 });
 
 setCrtEnabled(document.body.classList.contains('crt-enabled'));
-updateFullscreenButtonLabel();
 
-document.addEventListener('fullscreenchange', updateFullscreenButtonLabel);
-document.addEventListener('webkitfullscreenchange', updateFullscreenButtonLabel);
-document.addEventListener('msfullscreenchange', updateFullscreenButtonLabel);
-
-guessHigherBtn.addEventListener('click', () => {
-  startAudio();
+guessHigherBtn.addEventListener('click', async () => {
+  await startAudio();
   resolveGuess('higher');
 });
 
-guessLowerBtn.addEventListener('click', () => {
-  startAudio();
+guessLowerBtn.addEventListener('click', async () => {
+  await startAudio();
   resolveGuess('lower');
 });
 
 backMenuBtn.addEventListener('click', backToModeSelect);
 
 if (playMayorMenorBtn) {
-  playMayorMenorBtn.addEventListener('click', () => {
-    startAudio();
+  playMayorMenorBtn.addEventListener('click', async () => {
+    await startAudio();
     showGameScreen();
   });
 }
 
 if (backToMainMenuBtn) {
-  backToMainMenuBtn.addEventListener('click', () => {
-    startAudio();
+  backToMainMenuBtn.addEventListener('click', async () => {
+    await startAudio();
     backToMenu();
   });
 }
@@ -806,8 +722,12 @@ betInput.addEventListener('input', () => {
   }
 });
 
-window.addEventListener('pointerdown', startAudio, { once: true });
-window.addEventListener('keydown', startAudio, { once: true });
+window.addEventListener('pointerdown', () => {
+  void startAudio();
+}, { once: true });
+window.addEventListener('keydown', () => {
+  void startAudio();
+}, { once: true });
 
 window.addEventListener('beforeunload', () => {
   if (autoNextRoundTimer) {

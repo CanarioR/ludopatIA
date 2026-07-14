@@ -44,8 +44,6 @@
         <button class="options-panel-backdrop" id="optionsBackdrop" type="button" aria-label="Cerrar opciones"></button>
         <div class="options-card">
           <h2 class="options-title">Opciones</h2>
-          <button class="pixel-btn options-btn" id="optionsFullscreenBtn" type="button">Pantalla completa</button>
-
           <label class="options-toggle" for="optionsCrtToggle">
             <input id="optionsCrtToggle" type="checkbox" checked />
             Efecto CRT
@@ -107,40 +105,42 @@
             alt="IA pixel art idle"
           />
 
-          <section class="game-card terminal-card" aria-live="polite">
-            <p class="label">Terminal</p>
-            <div class="number-row">
-              <div class="number-box">
-                <p class="number-caption">Byte actual</p>
-                <p class="current-number" id="currentNumber">50</p>
-              </div>
-              <p class="number-separator">&gt;&gt;</p>
-              <div class="number-box number-box-next">
-                <p class="number-caption">Byte siguiente</p>
-                <p class="next-number">?</p>
-              </div>
+          <div class="game-info-stack">
+            <div class="hud hud-strip">
+              <p id="creditsHud">
+                <img class="chip-sprite" src="assets/sprites/chip.png" alt="Ficha" aria-hidden="true" />
+                Creditos: <strong id="creditsValue">1000</strong>
+              </p>
+              <p>Ronda: <strong id="roundValue">1</strong></p>
             </div>
-          </section>
-        </div>
 
-        <div class="hud hud-strip">
-          <p id="creditsHud">
-            <img class="chip-sprite" src="assets/sprites/chip.png" alt="Ficha" aria-hidden="true" />
-            Creditos: <strong id="creditsValue">1000</strong>
-          </p>
-          <p>Ronda: <strong id="roundValue">1</strong></p>
+            <section class="game-card terminal-card" aria-live="polite">
+              <p class="label">Terminal</p>
+              <div class="number-row">
+                <div class="number-box">
+                  <p class="number-caption">Byte actual</p>
+                  <p class="current-number" id="currentNumber">50</p>
+                </div>
+                <p class="number-separator">&gt;&gt;</p>
+                <div class="number-box number-box-next">
+                  <p class="number-caption">Byte siguiente</p>
+                  <p class="next-number">?</p>
+                </div>
+              </div>
+            </section>
+          </div>
         </div>
       </header>
-
-      <section class="guess-buttons" aria-label="Eleccion mayor o menor">
-        <button class="pixel-btn action-btn action-up" id="guessHigherBtn">Mayor</button>
-        <button class="pixel-btn action-btn action-down" id="guessLowerBtn">Menor</button>
-      </section>
 
       <section class="bet-panel">
         <label for="betInput">Apuesta (fichas)</label>
         <input id="betInput" type="number" min="1" step="1" value="50" />
         <p class="result-text" id="resultText">La IA espera tu jugada.</p>
+      </section>
+
+      <section class="guess-buttons" aria-label="Eleccion mayor o menor">
+        <button class="pixel-btn action-btn action-up" id="guessHigherBtn">Mayor</button>
+        <button class="pixel-btn action-btn action-down" id="guessLowerBtn">Menor</button>
       </section>
 
       <div class="game-footer-actions">

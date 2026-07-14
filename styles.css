@@ -47,10 +47,6 @@ body {
   overflow-y: auto;
 }
 
-body.pseudo-fullscreen {
-  overflow: hidden;
-}
-
 body::before {
   content: "";
   position: fixed;
@@ -107,16 +103,6 @@ body::after {
   border-left: 4px solid var(--line);
   border-right: 4px solid var(--line);
   transition: transform 0.18s ease, filter 0.18s ease;
-}
-
-body.pseudo-fullscreen .menu-screen,
-body.pseudo-fullscreen .mode-select-screen,
-body.pseudo-fullscreen .game-screen {
-  width: 100vw;
-  min-height: 100dvh;
-  margin: 0;
-  border-left: 0;
-  border-right: 0;
 }
 
 body.crt-enabled .menu-screen,
@@ -457,6 +443,11 @@ body:not(.crt-enabled) .scanlines {
   padding: 0.65rem;
 }
 
+.game-info-stack {
+  display: grid;
+  gap: 0.6rem;
+}
+
 .game-bot-sprite {
   width: clamp(180px, 26vw, 300px);
   height: auto;
@@ -471,7 +462,7 @@ body:not(.crt-enabled) .scanlines {
   display: flex;
   gap: 0.7rem;
   flex-wrap: wrap;
-  justify-content: flex-end;
+  justify-content: flex-start;
 }
 
 .hud-strip {
@@ -986,10 +977,6 @@ body:not(.crt-enabled) .scanlines {
 @media (max-width: 640px) {
   body {
     overflow-y: auto;
-  }
-
-  body.pseudo-fullscreen {
-    overflow: hidden;
   }
 
   .menu-screen,
