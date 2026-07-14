@@ -380,6 +380,14 @@ function toMultiplier(probability) {
   return Number(Math.max(HOUSE_EDGE / probability, MIN_MULTIPLIER).toFixed(2));
 }
 
+function clampMultiplier(multiplier) {
+  if (!Number.isFinite(multiplier)) {
+    return MIN_MULTIPLIER;
+  }
+
+  return Math.max(multiplier, MIN_MULTIPLIER);
+}
+
 function getOdds(number) {
   const higherProbability = (100 - number) / 99;
   const lowerProbability = (number - 1) / 99;
@@ -394,6 +402,8 @@ function getOdds(number) {
 
 function renderState() {
   const { higherProbability, lowerProbability, higherMultiplier, lowerMultiplier } = getOdds(gameState.currentNumber);
+  const safeHigherMultiplier = clampMultiplier(higherMultiplier);
+  const safeLowerMultiplier = clampMultiplier(lowerMultiplier);
   const hasCredits = gameState.credits > 0;
   const creditsGain = gameState.credits - previousCredits;
 
@@ -404,10 +414,10 @@ function renderState() {
   guessLowerBtn.disabled = lowerProbability <= 0 || gameState.roundResolved || !hasCredits;
 
   guessHigherBtn.textContent = higherProbability > 0
-    ? `Mayor ↑ x${higherMultiplier.toFixed(2)}`
+    ? `Mayor ↑ x${safeHigherMultiplier.toFixed(2)}`
     : 'Mayor ↑';
   guessLowerBtn.textContent = lowerProbability > 0
-    ? `Menor ↓ x${lowerMultiplier.toFixed(2)}`
+    ? `Menor ↓ x${safeLowerMultiplier.toFixed(2)}`
     : 'Menor ↓';
 
   if (creditsGain !== 0) {
@@ -524,7 +534,7 @@ function resolveGuess(direction) {
 
   if ((direction === 'higher' && isHigher) || (direction === 'lower' && isLower)) {
     outcome = 'win';
-    multiplierUsed = direction === 'higher' ? higherMultiplier : lowerMultiplier;
+    multiplierUsed = clampMultiplier(direction === 'higher' ? higherMultiplier : lowerMultiplier);
     payout = Math.floor(bet * multiplierUsed);
   }
 
