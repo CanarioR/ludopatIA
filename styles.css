@@ -47,6 +47,10 @@ body {
   overflow-y: auto;
 }
 
+body.pseudo-fullscreen {
+  overflow: hidden;
+}
+
 body::before {
   content: "";
   position: fixed;
@@ -92,6 +96,7 @@ body::after {
 }
 
 .menu-screen,
+.mode-select-screen,
 .game-screen {
   position: relative;
   z-index: 2;
@@ -104,7 +109,18 @@ body::after {
   transition: transform 0.18s ease, filter 0.18s ease;
 }
 
+body.pseudo-fullscreen .menu-screen,
+body.pseudo-fullscreen .mode-select-screen,
+body.pseudo-fullscreen .game-screen {
+  width: 100vw;
+  min-height: 100dvh;
+  margin: 0;
+  border-left: 0;
+  border-right: 0;
+}
+
 body.crt-enabled .menu-screen,
+body.crt-enabled .mode-select-screen,
 body.crt-enabled .game-screen {
   transform: perspective(1400px) rotateX(0.35deg) scale(0.998);
   filter: contrast(1.08) saturate(1.08) brightness(1.02);
@@ -122,7 +138,8 @@ body:not(.crt-enabled) .scanlines {
   display: none;
 }
 
-.menu-screen {
+.menu-screen,
+.mode-select-screen {
   display: grid;
   grid-template-rows: auto 1fr auto auto;
   justify-items: center;
@@ -133,7 +150,8 @@ body:not(.crt-enabled) .scanlines {
 }
 
 /* Pixel casino skyline background */
-.menu-screen::before {
+.menu-screen::before,
+.mode-select-screen::before {
   content: "";
   position: absolute;
   inset: 0;
@@ -147,7 +165,8 @@ body:not(.crt-enabled) .scanlines {
   background-repeat: no-repeat;
 }
 
-.menu-screen::after {
+.menu-screen::after,
+.mode-select-screen::after {
   content: "";
   position: absolute;
   left: 50%;
@@ -228,18 +247,21 @@ body:not(.crt-enabled) .scanlines {
   gap: 0.72rem;
 }
 
-.menu-screen .pixel-btn {
+.menu-screen .pixel-btn,
+.mode-select-screen .pixel-btn {
   color: var(--term-text-strong);
   background: var(--term-bg);
   border-color: var(--term-border);
   box-shadow: 0 3px 0 rgba(6, 12, 18, 0.9), inset 0 0 0 1px rgba(126, 178, 255, 0.2);
 }
 
-.menu-screen .pixel-btn:hover {
+.menu-screen .pixel-btn:hover,
+.mode-select-screen .pixel-btn:hover {
   filter: brightness(1.08);
 }
 
-.menu-screen .pixel-btn:active {
+.menu-screen .pixel-btn:active,
+.mode-select-screen .pixel-btn:active {
   transform: translateY(2px);
   box-shadow: 0 1px 0 rgba(6, 12, 18, 0.9), inset 0 0 0 1px rgba(126, 178, 255, 0.2);
 }
@@ -966,9 +988,20 @@ body:not(.crt-enabled) .scanlines {
     overflow-y: auto;
   }
 
+  body.pseudo-fullscreen {
+    overflow: hidden;
+  }
+
   .menu-screen,
+  .mode-select-screen,
   .game-screen {
+    width: 100vw;
     min-height: 100dvh;
+    margin: 0;
+    border-left: 0;
+    border-right: 0;
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
     padding-top: 1.05rem;
     padding-bottom: 1.12rem;
   }
@@ -976,6 +1009,34 @@ body:not(.crt-enabled) .scanlines {
   .menu-screen {
     grid-template-rows: auto auto auto auto;
     gap: 0.9rem;
+  }
+
+  .mode-select-screen {
+    grid-template-rows: auto auto auto auto;
+    gap: 0.9rem;
+  }
+
+  .title-wrap {
+    width: 100%;
+    max-width: 520px;
+  }
+
+  .menu-buttons {
+    width: min(520px, 100%);
+  }
+
+  .pixel-btn {
+    min-height: 52px;
+  }
+
+  .options-card {
+    width: min(520px, 100%);
+    padding: 0.7rem;
+  }
+
+  .options-toggle {
+    min-height: 44px;
+    padding: 0.45rem 0.56rem;
   }
 
   .ia-character {
@@ -994,10 +1055,17 @@ body:not(.crt-enabled) .scanlines {
 
   .game-bot-card {
     grid-template-columns: 1fr;
+    padding: 0.55rem;
   }
 
   .hud {
     justify-content: center;
+    gap: 0.52rem;
+  }
+
+  .hud p {
+    width: 100%;
+    text-align: center;
   }
 
   .number-row {
@@ -1012,5 +1080,65 @@ body:not(.crt-enabled) .scanlines {
   .guess-buttons,
   .game-footer-actions {
     grid-template-columns: 1fr;
+  }
+
+  .bet-panel input {
+    width: 100%;
+    min-height: 46px;
+  }
+
+  .action-btn {
+    min-height: 58px;
+  }
+}
+
+@media (max-width: 430px) {
+  .subtitle {
+    font-size: clamp(0.92rem, 4.5vw, 1.06rem);
+    letter-spacing: 0.5px;
+  }
+
+  .audio-hint {
+    font-size: 0.95rem;
+    padding: 0.35rem 0.5rem;
+  }
+
+  .menu-screen,
+  .mode-select-screen,
+  .game-screen {
+    padding-left: 0.56rem;
+    padding-right: 0.56rem;
+    padding-top: 0.72rem;
+  }
+
+  .game-bot-sprite {
+    width: clamp(132px, 43vw, 190px);
+    height: auto;
+  }
+
+  .game-card,
+  .bet-panel {
+    padding: 0.7rem;
+  }
+
+  .current-number {
+    font-size: clamp(2.05rem, 15vw, 3.1rem);
+  }
+
+  .next-number {
+    font-size: clamp(1.78rem, 13vw, 2.7rem);
+  }
+
+  .pixel-btn {
+    font-size: clamp(0.72rem, 3.8vw, 0.9rem);
+  }
+
+  .options-panel {
+    padding: 0.55rem;
+  }
+
+  .outcome-overlay-sprite {
+    width: min(98vw, 460px);
+    max-height: 78vh;
   }
 }

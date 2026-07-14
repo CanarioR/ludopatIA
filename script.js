@@ -2,6 +2,7 @@ const buttons = document.querySelectorAll('.menu-buttons .pixel-btn');
 const audioHint = document.querySelector('.audio-hint');
 const scanlines = document.querySelector('.scanlines');
 const menuScreen = document.querySelector('.menu-screen');
+const modeSelectScreen = document.querySelector('.mode-select-screen');
 const gameScreen = document.querySelector('.game-screen');
 const outcomeOverlay = document.querySelector('#outcomeOverlay');
 const outcomeOverlaySprite = document.querySelector('#outcomeOverlaySprite');
@@ -10,6 +11,7 @@ const optionsBackdrop = document.querySelector('#optionsBackdrop');
 const optionsFullscreenBtn = document.querySelector('#optionsFullscreenBtn');
 const optionsCrtToggle = document.querySelector('#optionsCrtToggle');
 const optionsMusicToggle = document.querySelector('#optionsMusicToggle');
+const optionsResetCreditsBtn = document.querySelector('#optionsResetCreditsBtn');
 const optionsCloseBtn = document.querySelector('#optionsCloseBtn');
 
 const creditsValue = document.querySelector('#creditsValue');
@@ -23,6 +25,9 @@ const guessLowerBtn = document.querySelector('#guessLowerBtn');
 const guessHigherBtn = document.querySelector('#guessHigherBtn');
 const backMenuBtn = document.querySelector('#backMenuBtn');
 const playBtn = document.querySelector('#playBtn');
+const playMayorMenorBtn = document.querySelector('#playMayorMenorBtn');
+const playRuletaRusaBtn = document.querySelector('#playRuletaRusaBtn');
+const backToMainMenuBtn = document.querySelector('#backToMainMenuBtn');
 const menuCharacter = document.querySelector('.ia-character');
 const gameBotSprite = document.querySelector('.game-bot-sprite');
 
@@ -49,6 +54,7 @@ let creditsDisplayTimer;
 
 const MUSIC_TARGET_VOLUME = 0.35;
 const MUSIC_FADE_SECONDS = 0.8;
+const SFX_NOTE_VOLUME = 0.95;
 
 const HOUSE_EDGE = 0.92;
 
@@ -62,6 +68,95 @@ const gameState = {
 let previousCredits = gameState.credits;
 let displayedCredits = gameState.credits;
 let musicEnabled = true;
+let pseudoFullscreenActive = false;
+
+function getFullscreenElement() {
+  return document.fullscreenElement
+    || document.webkitFullscreenElement
+    || document.msFullscreenElement
+    || null;
+}
+
+function requestFullscreenCompat(element) {
+  if (!element) {
+    return Promise.reject(new Error('No target element for fullscreen.'));
+  }
+
+  if (element.requestFullscreen) {
+    return element.requestFullscreen();
+  }
+
+  if (element.webkitRequestFullscreen) {
+    return element.webkitRequestFullscreen();
+  }
+
+  if (element.msRequestFullscreen) {
+    return element.msRequestFullscreen();
+  }
+
+  return Promise.reject(new Error('Fullscreen API is not available.'));
+}
+
+function exitFullscreenCompat() {
+  if (document.exitFullscreen) {
+    return document.exitFullscreen();
+  }
+
+  if (document.webkitExitFullscreen) {
+    return document.webkitExitFullscreen();
+  }
+
+  if (document.msExitFullscreen) {
+    return document.msExitFullscreen();
+  }
+
+  return Promise.reject(new Error('Exit fullscreen API is not available.'));
+}
+
+function setPseudoFullscreen(enabled) {
+  pseudoFullscreenActive = enabled;
+  document.body.classList.toggle('pseudo-fullscreen', enabled);
+}
+
+function updateFullscreenButtonLabel() {
+  if (!optionsFullscreenBtn) {
+    return;
+  }
+
+  const active = Boolean(getFullscreenElement()) || pseudoFullscreenActive;
+  optionsFullscreenBtn.textContent = active ? 'Salir de pantalla completa' : 'Pantalla completa';
+}
+
+async function toggleFullscreenMode() {
+  const fullscreenElement = getFullscreenElement();
+
+  if (fullscreenElement) {
+    try {
+      await exitFullscreenCompat();
+    } catch {
+      setPseudoFullscreen(false);
+    }
+
+    updateFullscreenButtonLabel();
+    return;
+  }
+
+  if (pseudoFullscreenActive) {
+    setPseudoFullscreen(false);
+    updateFullscreenButtonLabel();
+    return;
+  }
+
+  try {
+    await requestFullscreenCompat(document.documentElement);
+    setPseudoFullscreen(false);
+  } catch {
+    // iOS Safari and some mobile browsers block fullscreen for regular pages.
+    setPseudoFullscreen(true);
+  }
+
+  updateFullscreenButtonLabel();
+}
 
 function openOptionsPanel() {
   if (!optionsPanel) {
@@ -279,7 +374,7 @@ function playWinSfx() {
   const notes = [523.25, 659.25, 783.99, 1046.5];
 
   notes.forEach((note, i) => {
-    makeSquareOsc(note, now + i * 0.07, 0.18, 0.25);
+    makeSquareOsc(note, now + i * 0.07, 0.2, SFX_NOTE_VOLUME);
   });
 }
 
@@ -292,7 +387,7 @@ function playLoseSfx() {
   const notes = [392, 329.63, 261.63, 196];
 
   notes.forEach((note, i) => {
-    makeSquareOsc(note, now + i * 0.08, 0.22, 0.25);
+    makeSquareOsc(note, now + i * 0.08, 0.24, SFX_NOTE_VOLUME);
   });
 }
 
@@ -300,7 +395,7 @@ function startAudio() {
   if (!audioStarted) {
     audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     masterGain = audioCtx.createGain();
-    masterGain.gain.value = 0.35;
+    masterGain.gain.value = 0.78;
     masterGain.connect(audioCtx.destination);
 
     audioStarted = true;
@@ -520,8 +615,13 @@ function resolveGuess(direction) {
   }
 }
 
-function showGameScreen() {
+function showModeSelectScreen() {
   menuScreen.classList.add('hidden');
+  modeSelectScreen.classList.remove('hidden');
+}
+
+function showGameScreen() {
+  modeSelectScreen.classList.add('hidden');
   gameScreen.classList.remove('hidden');
 
   gameState.credits = 1000;
@@ -533,12 +633,38 @@ function showGameScreen() {
   startNewRound(true);
 }
 
+function backToModeSelect() {
+  clearTimeout(autoNextRoundTimer);
+  clearTimeout(outcomeOverlayTimer);
+  clearTimeout(deferredCreditsTimer);
+  clearTimeout(creditsDisplayTimer);
+  gameScreen.classList.add('hidden');
+  modeSelectScreen.classList.remove('hidden');
+  if (outcomeOverlay) {
+    outcomeOverlay.classList.remove('is-visible', 'is-win', 'is-lose');
+  }
+
+  if (bgMusic && !bgMusic.paused) {
+    fadeMusicTo(0, 0.55, () => {
+      if (!bgMusic) {
+        return;
+      }
+
+      bgMusic.pause();
+      bgMusic.currentTime = 0;
+    });
+  }
+
+  setBotMood('idle');
+}
+
 function backToMenu() {
   clearTimeout(autoNextRoundTimer);
   clearTimeout(outcomeOverlayTimer);
   clearTimeout(deferredCreditsTimer);
   clearTimeout(creditsDisplayTimer);
   gameScreen.classList.add('hidden');
+  modeSelectScreen.classList.add('hidden');
   menuScreen.classList.remove('hidden');
   if (outcomeOverlay) {
     outcomeOverlay.classList.remove('is-visible', 'is-win', 'is-lose');
@@ -570,7 +696,7 @@ function handleButtonClick(action) {
   startAudio();
 
   if (action === 'play') {
-    showGameScreen();
+    showModeSelectScreen();
     return;
   }
 
@@ -590,14 +716,7 @@ if (playBtn) {
 }
 
 if (optionsFullscreenBtn) {
-  optionsFullscreenBtn.addEventListener('click', async () => {
-    if (!document.fullscreenElement) {
-      await document.documentElement.requestFullscreen();
-      return;
-    }
-
-    await document.exitFullscreen();
-  });
+  optionsFullscreenBtn.addEventListener('click', toggleFullscreenMode);
 }
 
 if (optionsCrtToggle) {
@@ -609,6 +728,24 @@ if (optionsCrtToggle) {
 if (optionsMusicToggle) {
   optionsMusicToggle.addEventListener('change', () => {
     setMusicEnabled(optionsMusicToggle.checked);
+  });
+}
+
+if (optionsResetCreditsBtn) {
+  optionsResetCreditsBtn.addEventListener('click', () => {
+    gameState.credits = 1000;
+    previousCredits = gameState.credits;
+    displayedCredits = gameState.credits;
+    creditsValue.textContent = String(displayedCredits);
+    
+    if (creditsHud) {
+      creditsHud.classList.remove('credits-pop', 'credits-drop');
+      delete creditsHud.dataset.gain;
+      delete creditsHud.dataset.loss;
+    }
+    
+    resultText.textContent = 'Creditos reiniciados a 1000.';
+    renderState();
   });
 }
 
@@ -631,6 +768,11 @@ window.addEventListener('keydown', (event) => {
 });
 
 setCrtEnabled(document.body.classList.contains('crt-enabled'));
+updateFullscreenButtonLabel();
+
+document.addEventListener('fullscreenchange', updateFullscreenButtonLabel);
+document.addEventListener('webkitfullscreenchange', updateFullscreenButtonLabel);
+document.addEventListener('msfullscreenchange', updateFullscreenButtonLabel);
 
 guessHigherBtn.addEventListener('click', () => {
   startAudio();
@@ -642,7 +784,21 @@ guessLowerBtn.addEventListener('click', () => {
   resolveGuess('lower');
 });
 
-backMenuBtn.addEventListener('click', backToMenu);
+backMenuBtn.addEventListener('click', backToModeSelect);
+
+if (playMayorMenorBtn) {
+  playMayorMenorBtn.addEventListener('click', () => {
+    startAudio();
+    showGameScreen();
+  });
+}
+
+if (backToMainMenuBtn) {
+  backToMainMenuBtn.addEventListener('click', () => {
+    startAudio();
+    backToMenu();
+  });
+}
 
 betInput.addEventListener('input', () => {
   if (Number(betInput.value) < 1) {

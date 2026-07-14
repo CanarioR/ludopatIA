@@ -56,9 +56,39 @@
             Musica
           </label>
 
+          <button class="pixel-btn options-btn" id="optionsResetCreditsBtn" type="button">Reiniciar creditos</button>
+
           <button class="pixel-btn options-btn" id="optionsCloseBtn" type="button">Cerrar opciones</button>
         </div>
       </section>
+    </main>
+
+    <main class="mode-select-screen hidden" aria-label="Seleccion de modo de juego">
+      <header class="title-wrap">
+        <p class="subtitle">Selecciona modo de juego</p>
+      </header>
+
+      <section class="character-zone" aria-label="Personaje IA">
+        <img
+          class="ia-character"
+          src="assets/sprites/idle.gif"
+          role="img"
+          aria-label="IA pixel art idle"
+          alt="IA pixel art idle"
+        />
+      </section>
+
+      <nav class="menu-buttons" aria-label="Modos de juego">
+        <button class="pixel-btn" id="playMayorMenorBtn" data-mode="mayor-menor">Mayor o Menor</button>
+        <button class="pixel-btn" id="playRuletaRusaBtn" data-mode="ruleta-rusa" disabled>
+          Ruleta Rusa
+          <span style="display: block; font-size: 0.7em; margin-top: 0.25rem; opacity: 0.8;">Proximamente</span>
+        </button>
+      </nav>
+
+      <div class="menu-buttons" style="margin-top: 0.5rem;">
+        <button class="pixel-btn" id="backToMainMenuBtn">Volver al menu</button>
+      </div>
     </main>
 
     <main class="game-screen hidden" aria-label="Pantalla de juego">
