@@ -57,6 +57,7 @@ const MUSIC_FADE_SECONDS = 0.8;
 const SFX_NOTE_VOLUME = 0.95;
 
 const HOUSE_EDGE = 0.92;
+const MIN_MULTIPLIER = 1.10;
 
 const gameState = {
   credits: 1000,
@@ -376,7 +377,7 @@ function toMultiplier(probability) {
     return 0;
   }
 
-  return Number((HOUSE_EDGE / probability).toFixed(2));
+  return Number(Math.max(HOUSE_EDGE / probability, MIN_MULTIPLIER).toFixed(2));
 }
 
 function getOdds(number) {
