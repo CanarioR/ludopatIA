@@ -475,10 +475,17 @@ function startNewRound(isInitial = false) {
 }
 
 function parseBet() {
-  const bet = Number(betInput.value);
+  const rawBet = betInput.value.trim();
+
+  if (!/^[1-9]\d*$/.test(rawBet)) {
+    resultText.textContent = 'Ingresa una apuesta valida: solo numeros enteros mayores a 0.';
+    return null;
+  }
+
+  const bet = Number(rawBet);
 
   if (!Number.isInteger(bet) || bet <= 0) {
-    resultText.textContent = 'Ingresa una apuesta valida mayor a 0.';
+    resultText.textContent = 'Ingresa una apuesta valida: solo numeros enteros mayores a 0.';
     return null;
   }
 
@@ -739,9 +746,15 @@ if (backToMainMenuBtn) {
 }
 
 betInput.addEventListener('input', () => {
-  if (Number(betInput.value) < 1) {
-    betInput.value = '1';
+  const digitsOnly = betInput.value.replace(/\D/g, '');
+
+  // Allow empty value while editing; enforce validity only when submitting the guess.
+  if (digitsOnly === '') {
+    betInput.value = '';
+    return;
   }
+
+  betInput.value = digitsOnly.replace(/^0+(?=\d)/, '');
 });
 
 window.addEventListener('pointerdown', () => {
