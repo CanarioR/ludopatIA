@@ -1,0 +1,1016 @@
+:root {
+  --bg-deep: #05070d;
+  --bg-mid: #0c1019;
+  --bg-soft: #151c29;
+  --panel: #101723;
+  --panel-2: #161f2d;
+  --ink: #090a0f;
+  --line: #243047;
+  --cream: #d5d4ca;
+  --cream-2: #beb9a8;
+  --screen-green: #5e7265;
+  --screen-green-2: #7f9888;
+  --accent-red: #8b2d38;
+  --accent-yellow: #9f965a;
+  --text-main: #e8e6de;
+  --text-soft: #a5acb8;
+  --term-text: #a9d8ff;
+  --term-text-strong: #d5ebff;
+  --term-border: rgba(126, 178, 255, 0.62);
+  --term-border-soft: rgba(126, 178, 255, 0.4);
+  --term-bg: rgba(8, 16, 34, 0.28);
+  --term-bg-soft: rgba(8, 16, 34, 0.2);
+}
+
+@font-face {
+  font-family: "LudopatiaPixel";
+  src: url("assets/fonts/pixel-main.ttf") format("truetype");
+  font-display: swap;
+}
+
+* {
+  box-sizing: border-box;
+  image-rendering: pixelated;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+}
+
+body {
+  font-family: "LudopatiaPixel", "VT323", monospace;
+  color: var(--text-main);
+  background: linear-gradient(180deg, var(--bg-deep), var(--bg-mid) 50%, #0b0f17);
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 10px 10px;
+  opacity: 0.28;
+}
+
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+}
+
+.scanlines {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      rgba(255, 255, 255, 0.06),
+      rgba(255, 255, 255, 0.06) 1px,
+      rgba(0, 0, 0, 0.06) 1px,
+      rgba(0, 0, 0, 0.06) 3px,
+      transparent 3px,
+      transparent 5px
+    ),
+    linear-gradient(90deg, rgba(255, 0, 80, 0.045), rgba(0, 255, 255, 0.03), rgba(60, 120, 255, 0.045));
+  mix-blend-mode: screen;
+  opacity: 0.62;
+  animation: drift 8s linear infinite, crtFlicker 0.16s steps(2, jump-none) infinite;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.menu-screen,
+.game-screen {
+  position: relative;
+  z-index: 2;
+  min-height: 100dvh;
+  width: min(980px, 92vw);
+  margin: 0 auto;
+  padding: clamp(1rem, 2.8vw, 2.2rem) 0.8rem 1.3rem;
+  border-left: 4px solid var(--line);
+  border-right: 4px solid var(--line);
+  transition: transform 0.18s ease, filter 0.18s ease;
+}
+
+body.crt-enabled .menu-screen,
+body.crt-enabled .game-screen {
+  transform: perspective(1400px) rotateX(0.35deg) scale(0.998);
+  filter: contrast(1.08) saturate(1.08) brightness(1.02);
+}
+
+body.crt-enabled::after {
+  opacity: 1;
+  background:
+    radial-gradient(circle at center, transparent 45%, rgba(0, 0, 0, 0.26) 100%),
+    linear-gradient(90deg, rgba(255, 0, 68, 0.04), transparent 18%, transparent 82%, rgba(0, 170, 255, 0.04)),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(0, 0, 0, 0.1));
+}
+
+body:not(.crt-enabled) .scanlines {
+  display: none;
+}
+
+.menu-screen {
+  display: grid;
+  grid-template-rows: auto 1fr auto auto;
+  justify-items: center;
+  gap: 1rem;
+  overflow: hidden;
+  font-family: "VT323", monospace;
+  color: var(--term-text);
+}
+
+/* Pixel casino skyline background */
+.menu-screen::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  background:
+    linear-gradient(180deg, rgba(5, 8, 14, 0.5) 0%, rgba(7, 10, 18, 0.58) 55%, rgba(3, 5, 11, 0.66) 100%),
+    linear-gradient(0deg, rgba(12, 16, 26, 0.16), rgba(12, 16, 26, 0.16)),
+    url("assets/ui/bg_ludopatia.png");
+  background-size: cover, cover, cover;
+  background-position: center, center, center;
+  background-repeat: no-repeat;
+}
+
+.menu-screen::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 25%;
+  transform: translateX(-50%);
+  width: min(460px, 82vw);
+  height: 56px;
+  z-index: -1;
+  border: 4px solid #0b101a;
+  background:
+    linear-gradient(180deg, rgba(44, 54, 73, 0.55), rgba(24, 31, 46, 0.55)),
+    repeating-linear-gradient(
+      to right,
+      transparent 0 14px,
+      rgba(159, 150, 90, 0.42) 14px 18px,
+      transparent 18px 34px
+    );
+  box-shadow: 0 4px 0 #07080d;
+  opacity: 0.28;
+}
+
+.title-wrap {
+  text-align: center;
+  background: var(--term-bg-soft);
+  border: 2px solid var(--term-border);
+  box-shadow: inset 0 0 0 1px rgba(126, 178, 255, 0.2), 0 4px 0 #080a10;
+  padding: 0.55rem 0.95rem;
+}
+
+.subtitle {
+  margin: 0;
+  font-size: clamp(1rem, 2.8vw, 1.35rem);
+  color: var(--term-text);
+  letter-spacing: 1px;
+}
+
+.game-title {
+  margin: 0.65rem 0 0;
+  font-family: "LudopatiaPixel", "Press Start 2P", monospace;
+  font-size: clamp(1.9rem, 7vw, 4rem);
+  line-height: 1.14;
+  color: var(--cream);
+  text-shadow:
+    3px 0 0 #555042,
+    -3px 0 0 #555042,
+    0 3px 0 #555042,
+    0 -3px 0 #555042,
+    0 7px 0 #1b1a17;
+  animation: titleBlink 2.2s steps(2, jump-none) infinite;
+}
+
+.game-title-image {
+  display: block;
+  width: min(620px, 84vw);
+  height: auto;
+  margin: 0 auto;
+  image-rendering: pixelated;
+}
+
+.character-zone {
+  display: flex;
+  align-items: end;
+  justify-content: center;
+  width: 100%;
+}
+
+.ia-character {
+  width: clamp(190px, 44vw, 340px);
+  height: auto;
+  display: block;
+  filter: drop-shadow(0 8px 0 #07080f);
+  image-rendering: pixelated;
+}
+
+.menu-buttons {
+  width: min(460px, 94vw);
+  display: grid;
+  gap: 0.72rem;
+}
+
+.menu-screen .pixel-btn {
+  color: var(--term-text-strong);
+  background: var(--term-bg);
+  border-color: var(--term-border);
+  box-shadow: 0 3px 0 rgba(6, 12, 18, 0.9), inset 0 0 0 1px rgba(126, 178, 255, 0.2);
+}
+
+.menu-screen .pixel-btn:hover {
+  filter: brightness(1.08);
+}
+
+.menu-screen .pixel-btn:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 rgba(6, 12, 18, 0.9), inset 0 0 0 1px rgba(126, 178, 255, 0.2);
+}
+
+.pixel-btn {
+  appearance: none;
+  border: 4px solid var(--ink);
+  font-family: "LudopatiaPixel", "Press Start 2P", monospace;
+  font-size: clamp(0.74rem, 2.6vw, 0.95rem);
+  letter-spacing: 1px;
+  color: #10141d;
+  background:
+    linear-gradient(180deg, #d3d0c4, #b7b2a0);
+  padding: 0.95rem 0.8rem;
+  cursor: pointer;
+  text-transform: uppercase;
+  box-shadow:
+    0 5px 0 #0a0a11,
+    inset -4px -4px 0 rgba(70, 66, 56, 0.45),
+    inset 4px 4px 0 rgba(245, 242, 235, 0.32);
+  transition: transform 0.14s steps(2, jump-none), filter 0.14s linear, box-shadow 0.14s linear;
+}
+
+.pixel-btn:hover {
+  filter: brightness(1.08);
+}
+
+.pixel-btn:active {
+  transform: translateY(3px);
+  box-shadow:
+    0 2px 0 #0a0a11,
+    inset -4px -4px 0 rgba(70, 66, 56, 0.45),
+    inset 4px 4px 0 rgba(245, 242, 235, 0.32);
+}
+
+.pixel-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.audio-hint {
+  margin: 0.3rem 0 0;
+  font-size: clamp(1rem, 2.9vw, 1.26rem);
+  color: var(--term-text);
+  text-align: center;
+  background: var(--term-bg-soft);
+  border: 2px solid var(--term-border-soft);
+  padding: 0.25rem 0.55rem;
+}
+
+.options-panel {
+  position: absolute;
+  inset: 0;
+  z-index: 12;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+}
+
+.options-panel-backdrop {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  background: rgba(5, 12, 24, 0.42);
+  backdrop-filter: blur(3px);
+  cursor: pointer;
+}
+
+.options-card {
+  position: relative;
+  z-index: 1;
+  width: min(460px, 94vw);
+  display: grid;
+  gap: 0.55rem;
+  padding: 0.78rem;
+  border: 2px solid var(--term-border);
+  background: rgba(7, 14, 30, 0.58);
+  box-shadow: inset 0 0 0 1px rgba(126, 178, 255, 0.2), 0 18px 40px rgba(0, 0, 0, 0.35);
+}
+
+.options-title {
+  margin: 0;
+  font-family: "LudopatiaPixel", "Press Start 2P", monospace;
+  font-size: clamp(0.9rem, 2.8vw, 1.15rem);
+  color: var(--term-text-strong);
+}
+
+.options-btn {
+  color: var(--term-text-strong);
+  background: var(--term-bg);
+  border-color: var(--term-border);
+  box-shadow: 0 3px 0 rgba(6, 12, 18, 0.9), inset 0 0 0 1px rgba(126, 178, 255, 0.2);
+}
+
+.options-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-size: clamp(0.95rem, 2.5vw, 1.1rem);
+  color: var(--term-text);
+  background: var(--term-bg-soft);
+  border: 2px solid var(--term-border-soft);
+  padding: 0.42rem 0.5rem;
+}
+
+.options-toggle input {
+  width: 18px;
+  height: 18px;
+  accent-color: #7ed7ff;
+}
+
+.game-screen {
+  display: grid;
+  align-content: start;
+  gap: 0.72rem;
+  background: linear-gradient(to top, rgba(6, 9, 15, 0.88), rgba(12, 18, 29, 0.84));
+  overflow: hidden;
+  font-family: "VT323", monospace;
+  color: var(--term-text);
+}
+
+.outcome-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+  opacity: 0;
+}
+
+.outcome-overlay-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(6, 8, 14, 0.22);
+}
+
+.outcome-overlay-sprite {
+  position: relative;
+  z-index: 1;
+  width: min(92vw, 920px);
+  max-height: 92vh;
+  height: auto;
+  image-rendering: pixelated;
+  filter: drop-shadow(0 0 26px rgba(0, 0, 0, 0.7));
+  transform: scale(0.82);
+}
+
+.outcome-overlay.is-visible {
+  animation: outcomeFlash 1.15s ease-out;
+}
+
+.outcome-overlay.is-visible .outcome-overlay-sprite {
+  animation: outcomeSpriteZoom 1.15s ease-out;
+}
+
+.outcome-overlay.is-win .outcome-overlay-backdrop {
+  background: radial-gradient(circle, rgba(43, 164, 108, 0.24), rgba(4, 9, 16, 0.7));
+}
+
+.outcome-overlay.is-lose .outcome-overlay-backdrop {
+  background: radial-gradient(circle, rgba(182, 45, 70, 0.26), rgba(4, 9, 16, 0.72));
+}
+
+.game-screen::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(4, 7, 12, 0.6) 0%, rgba(5, 8, 14, 0.66) 55%, rgba(2, 4, 9, 0.72) 100%),
+    linear-gradient(0deg, rgba(8, 12, 20, 0.2), rgba(8, 12, 20, 0.2)),
+    url("assets/ui/bg_ludopatia.png");
+  background-size: cover, cover, cover;
+  background-position: center, center, center;
+  background-repeat: no-repeat;
+}
+
+.game-header {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.game-bot-card {
+  display: grid;
+  grid-template-columns: minmax(220px, 1.15fr) minmax(250px, 0.85fr);
+  gap: 0.8rem;
+  align-items: center;
+  border: 2px solid var(--term-border);
+  box-shadow: inset 0 0 0 1px rgba(126, 178, 255, 0.25);
+  background: var(--term-bg-soft);
+  padding: 0.65rem;
+}
+
+.game-bot-sprite {
+  width: clamp(180px, 26vw, 300px);
+  height: auto;
+  flex-shrink: 0;
+  display: block;
+  justify-self: center;
+  filter: drop-shadow(0 6px 0 #07080f);
+  image-rendering: pixelated;
+}
+
+.hud {
+  display: flex;
+  gap: 0.7rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.hud-strip {
+  justify-content: center;
+}
+
+.hud p {
+  margin: 0;
+  font-size: clamp(1rem, 2.7vw, 1.24rem);
+  color: var(--term-text);
+  background: var(--term-bg-soft);
+  border: 2px solid var(--term-border);
+  box-shadow: none;
+  padding: 0.4rem 0.6rem;
+}
+
+#creditsHud {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.chip-sprite {
+  width: 20px;
+  height: 20px;
+  flex: 0 0 auto;
+  image-rendering: pixelated;
+  filter: drop-shadow(0 1px 0 rgba(7, 10, 18, 0.85));
+  animation: chipBob 1.6s steps(2, jump-none) infinite;
+}
+
+#creditsHud.credits-pop strong {
+  animation: creditsRise 1.05s steps(2, jump-none);
+}
+
+#creditsHud.credits-pop {
+  animation: creditsHudPulse 1.05s ease-out;
+}
+
+#creditsHud.credits-drop {
+  animation: creditsHudShake 1.05s ease-out;
+}
+
+#creditsHud.credits-pop::after {
+  content: attr(data-gain);
+  position: absolute;
+  left: 50%;
+  top: -42px;
+  transform: translateX(-50%);
+  font-family: "LudopatiaPixel", "Press Start 2P", monospace;
+  font-size: clamp(1.2rem, 4.2vw, 2.35rem);
+  color: #98ffd0;
+  text-shadow:
+    0 0 16px rgba(95, 255, 175, 0.72),
+    2px 2px 0 rgba(5, 28, 17, 0.98);
+  pointer-events: none;
+  z-index: 4;
+  animation: gainFloatBig 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+#creditsHud.credits-pop::before {
+  content: ".  .  .";
+  position: absolute;
+  left: 50%;
+  top: -18px;
+  transform: translateX(-50%);
+  font-family: "LudopatiaPixel", "Press Start 2P", monospace;
+  font-size: clamp(0.7rem, 2.1vw, 1.15rem);
+  color: rgba(158, 255, 211, 0.9);
+  text-shadow: 0 0 10px rgba(117, 255, 191, 0.62);
+  pointer-events: none;
+  z-index: 3;
+  animation: chipDotsBurst 0.95s ease-out forwards;
+}
+
+#creditsHud.credits-drop::after {
+  content: attr(data-loss);
+  position: absolute;
+  left: 50%;
+  top: -42px;
+  transform: translateX(-50%);
+  font-family: "LudopatiaPixel", "Press Start 2P", monospace;
+  font-size: clamp(1.2rem, 4.2vw, 2.35rem);
+  color: #ff9aa7;
+  text-shadow:
+    0 0 16px rgba(255, 107, 133, 0.7),
+    2px 2px 0 rgba(43, 8, 15, 0.98);
+  pointer-events: none;
+  z-index: 4;
+  animation: lossFloatBig 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+#creditsHud.credits-drop::before {
+  content: "x  x  x";
+  position: absolute;
+  left: 50%;
+  top: -18px;
+  transform: translateX(-50%);
+  font-family: "LudopatiaPixel", "Press Start 2P", monospace;
+  font-size: clamp(0.7rem, 2.1vw, 1.15rem);
+  color: rgba(255, 170, 186, 0.9);
+  text-shadow: 0 0 10px rgba(255, 130, 154, 0.55);
+  pointer-events: none;
+  z-index: 3;
+  animation: chipDotsDrop 0.95s ease-out forwards;
+}
+
+#creditsHud.credits-pop .chip-sprite {
+  animation: chipBurst 0.95s ease-out;
+}
+
+#creditsHud.credits-drop .chip-sprite {
+  animation: chipBurstLose 0.95s ease-out;
+}
+
+.hud strong {
+  color: var(--term-text-strong);
+}
+
+.game-card,
+.bet-panel {
+  background: var(--term-bg-soft);
+  border: 2px solid var(--term-border);
+  box-shadow: inset 0 0 0 1px rgba(126, 178, 255, 0.2);
+  padding: clamp(0.82rem, 2.4vw, 1.3rem);
+}
+
+.game-card {
+  text-align: center;
+}
+
+.terminal-card {
+  padding-top: 0.7rem;
+}
+
+.label {
+  margin: 0;
+  font-size: clamp(1rem, 2.7vw, 1.24rem);
+  color: var(--term-text);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
+
+.number-row {
+  display: grid;
+  grid-template-columns: minmax(120px, 1fr) auto minmax(120px, 1fr);
+  align-items: center;
+  gap: 0.8rem;
+  margin-top: 0.45rem;
+}
+
+.number-box {
+  border: 2px solid var(--term-border);
+  box-shadow: inset 0 0 0 1px rgba(126, 178, 255, 0.16);
+  background: rgba(9, 19, 38, 0.26);
+  padding: 0.5rem;
+}
+
+.number-box-next {
+  border-color: var(--term-border-soft);
+  background: rgba(18, 19, 46, 0.24);
+}
+
+.number-caption {
+  margin: 0;
+  font-size: clamp(0.85rem, 2.2vw, 1rem);
+  text-transform: uppercase;
+  color: #a8c9ea;
+}
+
+.number-separator {
+  margin: 0;
+  font-size: clamp(1.4rem, 5vw, 2.1rem);
+  color: rgba(169, 216, 255, 0.55);
+  letter-spacing: 2px;
+}
+
+.next-number {
+  margin: 0.42rem 0;
+  font-family: "LudopatiaPixel", "Press Start 2P", monospace;
+  font-size: clamp(2.3rem, 9vw, 4rem);
+  color: #c5b6ff;
+  text-shadow:
+    2px 0 0 rgba(40, 34, 74, 0.85),
+    0 2px 0 rgba(40, 34, 74, 0.85),
+    0 5px 0 rgba(18, 14, 40, 0.9);
+}
+
+.current-number {
+  margin: 0.42rem 0;
+  font-family: "LudopatiaPixel", "Press Start 2P", monospace;
+  font-size: clamp(2.5rem, 12vw, 5.5rem);
+  color: #b6d9ff;
+  text-shadow:
+    2px 0 0 rgba(25, 44, 70, 0.9),
+    0 2px 0 rgba(25, 44, 70, 0.9),
+    0 5px 0 rgba(10, 19, 34, 0.95);
+}
+
+.bet-panel {
+  background: var(--term-bg);
+  border-color: var(--term-border);
+  display: grid;
+  gap: 0.72rem;
+}
+
+.bet-panel label {
+  font-size: clamp(0.98rem, 2.7vw, 1.2rem);
+  color: var(--term-text);
+}
+
+.bet-panel input {
+  width: min(280px, 100%);
+  font-family: "VT323", monospace;
+  font-size: clamp(1rem, 2.9vw, 1.3rem);
+  background: rgba(8, 18, 36, 0.42);
+  color: var(--term-text-strong);
+  border: 2px solid var(--term-border);
+  padding: 0.45rem 0.5rem;
+}
+
+.bet-panel input:focus {
+  outline: 2px solid rgba(169, 216, 255, 0.85);
+  outline-offset: 1px;
+}
+
+.guess-buttons {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(130px, 1fr));
+  gap: 0.65rem;
+}
+
+.action-btn {
+  position: relative;
+  overflow: hidden;
+  min-height: 62px;
+  font-size: clamp(0.95rem, 2.8vw, 1.3rem);
+}
+
+.action-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  filter: brightness(1.16);
+}
+
+.action-btn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(120deg, transparent 0%, rgba(255, 255, 255, 0.2) 48%, transparent 60%);
+  transform: translateX(-130%);
+  transition: transform 0.2s linear;
+  pointer-events: none;
+}
+
+.action-btn:hover:not(:disabled)::before {
+  transform: translateX(130%);
+}
+
+.action-up {
+  color: var(--term-text-strong);
+  background: rgba(11, 27, 47, 0.4);
+  border-color: var(--term-border);
+  box-shadow: 0 3px 0 rgba(6, 12, 18, 0.9), inset 0 0 0 1px rgba(126, 178, 255, 0.25);
+}
+
+.action-down {
+  color: var(--term-text-strong);
+  background: rgba(27, 18, 45, 0.38);
+  border-color: var(--term-border);
+  box-shadow: 0 3px 0 rgba(6, 12, 18, 0.9), inset 0 0 0 1px rgba(126, 178, 255, 0.25);
+}
+
+.game-footer-actions .pixel-btn {
+  color: var(--term-text-strong);
+  background: var(--term-bg);
+  border-color: var(--term-border);
+  box-shadow: 0 3px 0 rgba(6, 12, 18, 0.9), inset 0 0 0 1px rgba(126, 178, 255, 0.2);
+}
+
+.result-text {
+  margin: 0;
+  min-height: 1.4em;
+  font-size: clamp(1rem, 2.8vw, 1.24rem);
+  color: var(--term-text);
+}
+
+.game-footer-actions {
+  display: grid;
+  gap: 0.65rem;
+  grid-template-columns: 1fr;
+}
+
+@keyframes drift {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(8px);
+  }
+}
+
+@keyframes crtFlicker {
+  0%,
+  100% {
+    opacity: 0.62;
+  }
+  50% {
+    opacity: 0.56;
+  }
+}
+
+@keyframes chipBob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-2px);
+  }
+}
+
+@keyframes creditsRise {
+  0% {
+    color: #cce4ff;
+    text-shadow: none;
+  }
+  50% {
+    color: #b4ffd9;
+    text-shadow: 0 0 8px rgba(125, 255, 180, 0.45);
+  }
+  100% {
+    color: var(--term-text-strong);
+    text-shadow: none;
+  }
+}
+
+@keyframes gainFloat {
+  0% {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  20% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-14px);
+  }
+}
+
+@keyframes creditsHudPulse {
+  0% {
+    box-shadow: 0 0 0 rgba(0, 0, 0, 0);
+  }
+  30% {
+    box-shadow: 0 0 24px rgba(112, 255, 183, 0.45);
+  }
+  100% {
+    box-shadow: 0 0 0 rgba(0, 0, 0, 0);
+  }
+}
+
+@keyframes creditsHudShake {
+  0%,
+  100% {
+    transform: translateX(0);
+    box-shadow: 0 0 0 rgba(0, 0, 0, 0);
+  }
+  25% {
+    transform: translateX(-2px);
+    box-shadow: 0 0 22px rgba(255, 123, 148, 0.35);
+  }
+  50% {
+    transform: translateX(2px);
+    box-shadow: 0 0 24px rgba(255, 123, 148, 0.4);
+  }
+  75% {
+    transform: translateX(-1px);
+    box-shadow: 0 0 18px rgba(255, 123, 148, 0.28);
+  }
+}
+
+@keyframes gainFloatBig {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(10px) scale(0.7);
+  }
+  20% {
+    opacity: 1;
+    transform: translateX(-47%) translateY(-2px) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(-36%) translateY(-44px) scale(1.18);
+  }
+}
+
+@keyframes lossFloatBig {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(10px) scale(0.7);
+  }
+  20% {
+    opacity: 1;
+    transform: translateX(-53%) translateY(-2px) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(-64%) translateY(-44px) scale(1.18);
+  }
+}
+
+@keyframes chipDotsBurst {
+  0% {
+    opacity: 0;
+    letter-spacing: 0;
+    transform: translateX(-50%) translateY(6px);
+  }
+  35% {
+    opacity: 1;
+    letter-spacing: 2px;
+  }
+  100% {
+    opacity: 0;
+    letter-spacing: 5px;
+    transform: translateX(-50%) translateY(-18px);
+  }
+}
+
+@keyframes chipDotsDrop {
+  0% {
+    opacity: 0;
+    letter-spacing: 0;
+    transform: translateX(-50%) translateY(6px);
+  }
+  35% {
+    opacity: 1;
+    letter-spacing: 2px;
+  }
+  100% {
+    opacity: 0;
+    letter-spacing: 5px;
+    transform: translateX(-50%) translateY(-18px);
+  }
+}
+
+@keyframes chipBurst {
+  0% {
+    transform: scale(1) rotate(0deg);
+    filter: drop-shadow(0 1px 0 rgba(7, 10, 18, 0.85));
+  }
+  30% {
+    transform: scale(1.7) rotate(-8deg);
+    filter: drop-shadow(0 0 12px rgba(122, 255, 194, 0.72));
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    filter: drop-shadow(0 1px 0 rgba(7, 10, 18, 0.85));
+  }
+}
+
+@keyframes chipBurstLose {
+  0% {
+    transform: scale(1) rotate(0deg);
+    filter: drop-shadow(0 1px 0 rgba(7, 10, 18, 0.85));
+  }
+  30% {
+    transform: scale(1.7) rotate(8deg);
+    filter: drop-shadow(0 0 12px rgba(255, 129, 153, 0.72));
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    filter: drop-shadow(0 1px 0 rgba(7, 10, 18, 0.85));
+  }
+}
+
+@keyframes outcomeFlash {
+  0% {
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes outcomeSpriteZoom {
+  0% {
+    opacity: 0;
+    transform: scale(0.76);
+  }
+  14% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  75% {
+    opacity: 1;
+    transform: scale(1.04);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.08);
+  }
+}
+
+@media (max-width: 640px) {
+  body {
+    overflow-y: auto;
+  }
+
+  .menu-screen,
+  .game-screen {
+    min-height: 100dvh;
+    padding-top: 1.05rem;
+    padding-bottom: 1.12rem;
+  }
+
+  .menu-screen {
+    grid-template-rows: auto auto auto auto;
+    gap: 0.9rem;
+  }
+
+  .ia-character {
+    width: clamp(160px, 58vw, 280px);
+  }
+
+  .game-bot-sprite {
+    width: clamp(150px, 48vw, 230px);
+    height: clamp(150px, 48vw, 230px);
+  }
+
+  .outcome-overlay-sprite {
+    width: min(96vw, 560px);
+    max-height: 84vh;
+  }
+
+  .game-bot-card {
+    grid-template-columns: 1fr;
+  }
+
+  .hud {
+    justify-content: center;
+  }
+
+  .number-row {
+    grid-template-columns: 1fr;
+    gap: 0.55rem;
+  }
+
+  .number-separator {
+    display: none;
+  }
+
+  .guess-buttons,
+  .game-footer-actions {
+    grid-template-columns: 1fr;
+  }
+}

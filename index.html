@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LudopatIA | Pantalla Principal</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body class="crt-enabled">
+    <div class="scanlines" aria-hidden="true"></div>
+
+    <main class="menu-screen">
+      <header class="title-wrap">
+        <p class="subtitle">Arcade de azar contra IA</p>
+        <h1 class="game-title" aria-label="LudopatIA">
+          <img class="game-title-image" src="assets/ui/LudopatIA.png" alt="LudopatIA" />
+        </h1>
+      </header>
+
+      <section class="character-zone" aria-label="Personaje IA">
+        <img
+          class="ia-character"
+          src="assets/sprites/idle.gif"
+          role="img"
+          aria-label="IA pixel art idle"
+          alt="IA pixel art idle"
+        />
+      </section>
+
+      <nav class="menu-buttons" aria-label="Menu principal">
+        <button class="pixel-btn" id="playBtn" data-action="play">Jugar</button>
+        <button class="pixel-btn" data-action="options">Opciones</button>
+      </nav>
+
+      <p class="audio-hint">Haz clic en cualquier boton para activar la musica 8-bit</p>
+
+      <section class="options-panel hidden" id="optionsPanel" aria-label="Panel de opciones">
+        <button class="options-panel-backdrop" id="optionsBackdrop" type="button" aria-label="Cerrar opciones"></button>
+        <div class="options-card">
+          <h2 class="options-title">Opciones</h2>
+          <button class="pixel-btn options-btn" id="optionsFullscreenBtn" type="button">Pantalla completa</button>
+
+          <label class="options-toggle" for="optionsCrtToggle">
+            <input id="optionsCrtToggle" type="checkbox" checked />
+            Efecto CRT
+          </label>
+
+          <label class="options-toggle" for="optionsMusicToggle">
+            <input id="optionsMusicToggle" type="checkbox" checked />
+            Musica
+          </label>
+
+          <button class="pixel-btn options-btn" id="optionsCloseBtn" type="button">Cerrar opciones</button>
+        </div>
+      </section>
+    </main>
+
+    <main class="game-screen hidden" aria-label="Pantalla de juego">
+      <div class="outcome-overlay" id="outcomeOverlay" aria-hidden="true">
+        <div class="outcome-overlay-backdrop"></div>
+        <img class="outcome-overlay-sprite" id="outcomeOverlaySprite" src="assets/sprites/idle.gif" alt="" />
+      </div>
+
+      <header class="game-header">
+        <div class="game-bot-card">
+          <img
+            class="game-bot-sprite"
+            src="assets/sprites/idle.gif"
+            role="img"
+            aria-label="IA pixel art idle"
+            alt="IA pixel art idle"
+          />
+
+          <section class="game-card terminal-card" aria-live="polite">
+            <p class="label">Terminal</p>
+            <div class="number-row">
+              <div class="number-box">
+                <p class="number-caption">Byte actual</p>
+                <p class="current-number" id="currentNumber">50</p>
+              </div>
+              <p class="number-separator">&gt;&gt;</p>
+              <div class="number-box number-box-next">
+                <p class="number-caption">Byte siguiente</p>
+                <p class="next-number">?</p>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <div class="hud hud-strip">
+          <p id="creditsHud">
+            <img class="chip-sprite" src="assets/sprites/chip.png" alt="Ficha" aria-hidden="true" />
+            Creditos: <strong id="creditsValue">1000</strong>
+          </p>
+          <p>Ronda: <strong id="roundValue">1</strong></p>
+        </div>
+      </header>
+
+      <section class="guess-buttons" aria-label="Eleccion mayor o menor">
+        <button class="pixel-btn action-btn action-up" id="guessHigherBtn">Mayor</button>
+        <button class="pixel-btn action-btn action-down" id="guessLowerBtn">Menor</button>
+      </section>
+
+      <section class="bet-panel">
+        <label for="betInput">Apuesta (fichas)</label>
+        <input id="betInput" type="number" min="1" step="1" value="50" />
+        <p class="result-text" id="resultText">La IA espera tu jugada.</p>
+      </section>
+
+      <div class="game-footer-actions">
+        <button class="pixel-btn" id="backMenuBtn">Volver al menu</button>
+      </div>
+    </main>
+
+    <script src="script.js"></script>
+  </body>
+</html>
